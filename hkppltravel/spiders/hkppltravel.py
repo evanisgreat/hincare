@@ -131,7 +131,7 @@ class HKPplTravel(scrapy.Spider):
         event = {'name': '', 'subcategory activities': [], 'date': '', 'time': '', 'location': '', 'about': '', 'image_link': '', 'website url': ''}
 
         urls = response.xpath("//link[@rel='canonical']/@href").getall()
-        print(urls)
+        # print(urls)
         event['website url'] = check_url(urls)
 
         subheader_names = response.xpath('//div[1]/div/div/main/article/div[3]/div/h2//text()').getall()
@@ -147,8 +147,8 @@ class HKPplTravel(scrapy.Spider):
         name1 = response.xpath("//h1//text()").get()
         name2 = response.xpath("//h2//text()").get()
 
-        print(name1)
-        print(name2)
+        # print(name1)
+        # print(name2)
 
         if '【' in name1:
             event['name'] = name1
@@ -174,7 +174,7 @@ class HKPplTravel(scrapy.Spider):
 
         img_link = response.xpath("//figure[@class='wp-block-image size-large']/img/@data-src").get()
 
-        print(img_link)
+        # print(img_link)
 
         event['image_link'] = img_link
 
@@ -184,6 +184,6 @@ class HKPplTravel(scrapy.Spider):
 
         event['location'] = check_location(locations)
 
-        print(len(event['time']))
+        # print(len(event['time']))
 
         yield event

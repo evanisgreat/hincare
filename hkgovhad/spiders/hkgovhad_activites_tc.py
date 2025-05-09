@@ -101,9 +101,9 @@ def is_time(string):
 
 
 def process_date(year, month, string):
-    print(year)
-    print(month)
-    print(string)
+    # print(year)
+    # print(month)
+    # print(string)
     if '月' in string and '年' in string:
         try:
             new_string = year + "/" + number_dict[string[string.index('年') + 1:string.index('月')]]
@@ -139,7 +139,7 @@ def convert_date(string):
     string = string.replace(' ', '')
     d = dict()
     strings = string.split('至')
-    print(strings[0])
+    # print(strings[0])
     year = ''
     month = ''
     if '年' in strings[0]:
@@ -167,29 +167,36 @@ def convert_date(string):
 
 def process_time(string, am):
     new_string = ''
+    last_index = 0
     if am:
         if '早上' in string:
-            new_string += am_dict[string[string.index('早上') + 1: string.index('時')]]
+            new_string += am_dict[string[string.index('早上') + 2: string.index('時')]]
+            last_index = string.index('時')
         elif '上午' in string:
-            new_string += am_dict[string[string.index('上午') + 1: string.index('時')]]
+            new_string += am_dict[string[string.index('上午') + 2: string.index('時')]]
+            last_index = string.index('時')
         else:
             try:
                 new_string += am_dict[string[:string.index('時')]]
+                last_index = string.index('時')
             except:
                 new_string = 'error'
     else:
         if '下午' in string or '中午' in string:
             new_string += pm_dict[string[string.index('午') + 1: string.index('時')]]
+            last_index = string.index('時')
         elif '晚上' in string:
-            new_string += pm_dict[string[string.index('晚上') + 1: string.index('時')]]
+            new_string += pm_dict[string[string.index('晚上') + 2: string.index('時')]]
+            last_index = string.index('時')
         else:
             try:
                 new_string += pm_dict[string[:string.index('時')]]
+                last_index = string.index('時')
             except:
                 new_string = 'error'
 
-    if string.index('分') > 0:
-        new_string += ':' + string[:string.index('分')]
+    if string.index('分') > 0 and '時' in string:
+        new_string += ':' + string[last_index + 1:string.index('分')]
     else:
         new_string += ':00'
     return new_string
@@ -200,14 +207,14 @@ def convert_time(string):
     d = dict()
     strings = string.split('至')
     am = False
-    if strings[0].index('上午') > 0 or strings[0].index('早上') > 0:
+    if '上午' in strings[0] or '早上' in strings[0]:
         am = True
     d['starting time'] = process_time(strings[0], am)
 
     if len(strings) < 2:
         d['ending time'] = d['starting time']
     else:
-        if strings[1].index('下午') > 0 or strings[1].index('中午') > 0 or strings[1].index('晚上') > 0:
+        if '下午' in strings[0] or '中午' in strings[0] or '晚上' in strings[0]:
             am = False
         d['ending time'] = process_time(strings[1], am)
     return d
@@ -246,6 +253,8 @@ def refer_target_aud(string):
 class HkGovHad_Activities_Tc(scrapy.Spider):
     name = "hkgovhad_activities_tc"
     start_urls = []
+    event_scraped = 0
+
     for i in range(1, 10):
         start_urls.append('https://www.had.gov.hk/tc/18_districts/my_map_0' + str(i) + '_activities.htm')
 
@@ -261,6 +270,7 @@ class HkGovHad_Activities_Tc(scrapy.Spider):
     def parselink(self, response):
         rows = response.xpath("//table[@class='content-table  high-padding  desktop-table']//tbody/tr")
         event_list = []
+        image = response.xpath("//div[@class='header-logo-tc']//img/@src").get()
         district = response.xpath("//div[@class='h1-wrapper']//h2//text()").get()
         district = re.sub('活動預告', '', district)
         last_revision_date = response.xpath("//div[@class='bottom-date']//div[@class='bottom-nav_item']//text()")[1].get()
@@ -294,16 +304,16 @@ class HkGovHad_Activities_Tc(scrapy.Spider):
                     except:
                          event['event start date'].append("###")
                          event['event end date'].append("###")
-                         print(event['event name'])
+                         # print(event['event name'])
                 elif is_time(string):
                     event['event duration string'].append(string)
                     try:
-                        event['event start time'].append(convert_date(string)['starting time'])
-                        event['event end time'].append(convert_date(string)['ending time'])
+                        event['event start time'].append(convert_time(string)['starting time'])
+                        event['event end time'].append(convert_time(string)['ending time'])
                     except:
                         event['event start time'].append("時間改變失敗")
                         event['event end time'].append("時間改變失敗")
-                        print(event['event name'])
+                        # print(event['event name'])
                 else:
                     event['event location'].append(string)
 
@@ -326,6 +336,7 @@ class HkGovHad_Activities_Tc(scrapy.Spider):
                     event['event contact address'].append(string)
 
             event_list.append(event)
+
             yield event
 
-
+        print(len(event_list))
