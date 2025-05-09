@@ -17,10 +17,14 @@ def hkgovhad_script(date):
     os.system(command1)
     os.system(command2)
 
-def hkpptravel_script():
+def hkpptravel_script(date):
     directory = "/Users/evan/PycharmProjects/hincare/hkppltravel/hkppltravel"
     os.chdir(directory)
-    os.system("scrapy crawl hkppltravel -O hkppltravel.json")
+
+    file_name1 = 'hkppltravel' + date + '.json'
+    command1 = "scrapy crawl hkppltravel -O " + file_name1
+
+    os.system(command1)
 
 # Keep the script running to allow the scheduled tasks to execute
 
@@ -44,7 +48,7 @@ while True:
     current_date = now.strftime("%Y-%m-%d")
 
     hkgovhad_script(current_date)
-    hkpptravel_script()
+    hkpptravel_script(current_date)
 
     print("Updated at " + current_date + " " + current_time)
     time.sleep(86400)
