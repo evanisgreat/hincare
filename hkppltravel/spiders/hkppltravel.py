@@ -128,7 +128,7 @@ class HKPplTravel(scrapy.Spider):
 
 
     def parselink(self, response):
-        event = {'name': '', 'subcategory activities': [], 'date': '', 'time': '', 'location': '', 'about': '', 'image_link': '', 'website url': ''}
+        event = {'event name': '', 'subcategory activities': [], 'date': '', 'time': '', 'location': '', 'about': '', 'image_link': '', 'website url': '', 'event status': ''}
 
         urls = response.xpath("//link[@rel='canonical']/@href").getall()
         # print(urls)
@@ -151,9 +151,9 @@ class HKPplTravel(scrapy.Spider):
         # print(name2)
 
         if '【' in name1:
-            event['name'] = name1
+            event['event name'] = name1
         elif '【' in name2:
-            event['name'] = name2
+            event['event name'] = name2
         else:
             return
 

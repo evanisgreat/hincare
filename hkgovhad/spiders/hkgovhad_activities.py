@@ -252,7 +252,7 @@ class HkGovHad_Activities(scrapy.Spider):
                      'event duration string': [], 'event start time':[], 'event end time':[],
                      'event location': [], 'event description': '', 'event target audience': None,
                      'event contact person': None, 'event contact address': [], 'event contact tele': None,
-                     'last update date': last_revision_date}
+                     'last update date': last_revision_date, 'event status': ''}
 
             for string in first_column:
                 event['event name'] += string
