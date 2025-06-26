@@ -13,6 +13,6 @@ scrapy crawl [spider_name] -O [file_name].json
 The spider name can be found in the code
 
 Error code names in json file:
-* - Missing Data
-@ - Wrong Formatting
-# - Multiple Data Points
+'*' - Missing Data
+'@' - Wrong Formatting
+'#' - Multiple Data Points
