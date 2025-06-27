@@ -10,7 +10,9 @@ To map out the events into a JSON file run the following command:
 
 scrapy crawl [spider_name] -O [file_name].json
 
-The spider name can be found in the code
+The spider name can be found in the code and (usually) matches with the file name
+
+Current issues can be found in issues.txt
 
 Error code names in json file:
 '*' - Missing Data
