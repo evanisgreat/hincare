@@ -9,6 +9,9 @@ from pynput import keyboard
 import json
 
 
+# compares two json files
+# see if there are differences between old and new file
+
 def compare_json_files(file_path1, file_path2):
     """
     Compares two JSON files and returns a dictionary of differences.
@@ -40,6 +43,9 @@ def compare_json_files(file_path1, file_path2):
     else:
         return find_differences(data1, data2, file_path1, file_path2)
 
+# find the differences between two json files
+# first data is assumed to be first file
+# second data assumed to be second file
 def find_differences(data1, data2, file_path1, file_path2):
     # print(type(data1))
     # print(data1)
@@ -201,6 +207,7 @@ def hkgovhad_script(date):
 
             # os.remove(old_file_path)
 
+# the website I was scraping for blocked me with 403 error
 def hkpptravel_script(date):
     directory = "/Users/evan/PycharmProjects/hincare/hkppltravel/hkppltravel"
     os.chdir(directory)
@@ -264,46 +271,17 @@ def hkpptravel_script(date):
             # os.remove(old_file_path)
 
 
-def print_hot_keys():
-    print("hot keys: \n")
-    keys = ['c - kill program', 't - check next run']
-
-    for key in keys:
-        print(key)
+# def print_hot_keys():
+#     print("hot keys: \n")
+#     keys = ['c - kill program', 't - check next run']
+#
+#     for key in keys:
+#         print(key)
 
 # Keep the script running to allow the scheduled tasks to execute
 
-# update status - handle how many event
-# terminal show how many event handle
-# have commands to kill/instant process
-# have list of commands
-# show updated events
 
-# or can put timer in loop and check for keyboard
-
-# each object in json, match up in the old file, if there is check if it is different/updated
-
-# json "last updated"/"last modified"
-
-def on_press(key):
-    try:
-        print('alphanumeric key {0} pressed'.format(
-            key.char))
-        # sys.exit()
-    except AttributeError:
-        print('special key {0} pressed'.format(
-            key))
-
-
-def on_release(key):
-    print('{0} released'.format(
-        key))
-    if key == keyboard.Key.esc:
-        # Stop listener
-        return False
-
-
-
+run_time = float(input('Enter how many minutes you would like the program to run each time (1 day = 3600 minutes): '))
 
 while True:
     now = datetime.now()
@@ -314,14 +292,16 @@ while True:
     current_date = now.strftime("%Y-%m-%d")
 
     hkgovhad_script(current_date)
-    hkpptravel_script(current_date)
 
-    print("Updated at " + current_date + " " + current_time)
+    # due to current authorization problems I am commenting this out
+    # hkpptravel_script(current_date)
 
-    print_hot_keys()
+    print("\nUpdated at " + current_date + " " + current_time)
+    print('Next Run in ' + str(run_time) + ' minutes\n')
+
 
     # wait until next loop - this time for debug
-    time.sleep(20)
+    time.sleep(run_time * 60)
 
     # uncomment below when running per day
     # time.sleep(86400)
