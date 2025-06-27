@@ -1,0 +1,7 @@
+Current Issues (Updated 2024/06/26)
+
+1. hkppltravel unscrapable (403 error) -> look into ways to go around
+2. current method to clean up time strings is messy for both english and chinese
+3. current method to clean up date strings is messy for chinese
+4. unable to implement hotkeys due to Mac security
+5. all cases may not be accounted for
