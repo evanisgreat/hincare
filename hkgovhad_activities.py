@@ -5,6 +5,9 @@ import re
 
 
 
+## function to determine if a string contains a subscripts
+## due to website formatting many subscripts separate strings
+## used when strings may be separated by subscripts
 def is_subscript(string):
     subscipts = ['th', 'rd', 'nd', 'st']
     if string in subscipts:
@@ -12,6 +15,8 @@ def is_subscript(string):
     return False
 
 
+## function to figure if a string is a date
+## returns true or false
 def is_date(string):
     months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     for month in months:
@@ -20,6 +25,8 @@ def is_date(string):
     return False
 
 
+## determines if a string is time
+## look for key words in the string
 def is_time(string):
     keys = ['Open all day', 'am', 'pm', 'time', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'TBC', 'Open all day']
     for key in keys:
@@ -28,18 +35,21 @@ def is_time(string):
     return False
 
 
+## checks for target audience as a field
 def refer_target_aud(string):
     if "target participants:" in string.lower():
         return True
     return False
 
 
+### checks if a string is a telephone number for categorizing
 def is_tele(string):
     if 'tel:' in string.lower():
         return True
     return False
 
 
+### checks if a string is a contact person
 def is_person(string):
     keys = ['mr', 'ms', 'mister', 'miss']
     for key in keys:
@@ -48,6 +58,7 @@ def is_person(string):
     return False
 
 
+### dictionary that maps each month to its corresponding number
 month_dict = {
     'January': '01',
     'Jan': '01',
@@ -74,6 +85,8 @@ month_dict = {
     'Dec':'12'
 }
 
+
+## dictionary to convert hours in 24-hour double-digit system (for pm)
 pm_dict = {
     '1': '13',
     '2': '14',
@@ -89,6 +102,8 @@ pm_dict = {
     '12': '12'
 }
 
+
+## dictionary to convert hours into 24-hour double-digit system (for am)
 am_dict = {
     '1': '01',
     '2': '02',
@@ -105,11 +120,19 @@ am_dict = {
 }
 
 
+##### given a string, find starting time and ending time
+## ex: 12nn - 1:30pm
 def convert_time(string):
+    ## split based on '-'
     times = string.replace(' ','').split("-")
+
+    ## create return dict
     d = dict()
+
+    ## assume first one in list is start time
     start_time = times[0]
 
+    ### convert all numbers to 24 hour system based on index and am/pm
     if 'am' in start_time:
         if ':' in start_time:
             d['starting time'] = am_dict[start_time[:start_time.index(':')]] + times[1][times[1].index(':'):times[1].index('am')]
@@ -128,8 +151,11 @@ def convert_time(string):
     else:
         d['starting time'] = start_time
 
+    # if only one date assume ending time is same
     if len(times) < 2:
         d['ending time'] = d['starting time']
+
+    # repeat process of converting time to 24 hour system
     elif 'am' in times[1]:
         if ':' in times[1]:
             d['ending time'] = am_dict[times[1][:times[1].index(':')]] + times[1][times[1].index(':'):times[1].index('am')]
@@ -151,11 +177,16 @@ def convert_time(string):
     return d
 
 
+### processes date by finding the year, month and day of the string
 def process_date(date):
     strings = date.strip().split(' ')
     year = ''
     month = ''
     day = ''
+
+    ### if the string is 4 numbers, it is year
+    ### if it is another number, it is day
+    ### else it is month if month_dict does not throw error
     for s in strings:
         if re.search('\d{4}', s):
             year = s
@@ -172,24 +203,37 @@ def process_date(date):
                 day += s
             except:
                 day += s
+    ### if only month is given, assume is the 1st
+    ### '#' means guess
     if len(day) == 0:
         day = '01#'
     return year, month, day
 
 
+## given a string, find starting date and ending date
+## ex: 24 April 2025 to 5 March 2026
 def convert_date(string):
+    # split string into two different dates
     if " to " in string:
         dates = string.split(" to ")
     else :
         dates = string.split("-")
+
+    # define return dictionary
     d = dict()
+
+    ## assume first string is starting date
     start_date = dates[0]
 
+    ### turn return of process_date into list
     parts_of_date_start = list(process_date(start_date))
 
     missing_year = False
     missing_month = False
 
+    ### parts_of_date_start[0] = year
+    ### parts_of_date_start[0] = month
+    ### parts_of_date_start[0] = day
     if len(parts_of_date_start[0]) > 0 and len(parts_of_date_start[1]) > 0 and len(parts_of_date_start[2]) > 0:
         d['starting date'] = parts_of_date_start[0] + '/' + parts_of_date_start[1] + '/' + parts_of_date_start[2]
     else:
@@ -200,6 +244,10 @@ def convert_date(string):
             missing_month = True
     # print(day)
 
+    ### the reason why missing year and missing month is checked is because dates could show up as 1 - 7 April 2025
+
+    ### if there is only one date set them equal
+    ### else repeat process for ending date
     if len(dates) < 2:
         d['ending date'] = d['starting date']
     else:
@@ -277,9 +325,11 @@ class HkGovHad_Activities(scrapy.Spider):
                      'event contact person': '*', 'event contact address': [], 'event contact tele': '*',
                      'last update date': last_revision_date, 'event status': '*'}
 
+            ### construct the event name by strings in the first column
             for string in first_column:
                 event['event name'] += string
 
+            ### for second column it may contain date, location and time (duration)
             for string in second_column:
                 if is_date(string):
                     event['event date string'] = string
@@ -300,12 +350,14 @@ class HkGovHad_Activities(scrapy.Spider):
                 else:
                     event['event location'].append(string)
 
+            ### for third column it may contain description and target audience
             for string in third_column:
                 if refer_target_aud(string):
                     event['event target audience'] = string
                 else:
                     event['event description'] += string
 
+            ### for fourth column it may contain event contact person, telephone number and contact address
             for string in fourth_column:
                 if is_tele(string) and is_person(string):
                     index = string.lower().index("tel:")
