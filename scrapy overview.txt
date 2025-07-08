@@ -1,0 +1,34 @@
+Documentation:
+
+https://docs.scrapy.org/en/latest/
+
+
+To start a project enter the following in terminal:
+
+scrapy startproject [spider name]
+
+
+Follow the documentation to write the spider class and parse methods
+
+Look through the website you are scraping and see what kind of fields you would want to extract for each event. 
+
+Then, find the xpath to these fields.
+
+
+I suggest finding the xpath first using a scrapy shell by typing the following into terminal:
+
+scrapy shell '[url of the webpage you are scraping]'
+
+
+Put the extracted information in a dictionary
+
+Be sure to return said dictionary in your parse method.
+
+
+To run your spider, put the following in your terminal
+
+scrapy crawl [spider_name] -O [json file name]
+
+This will scrape all events into a json file
+
+Be sure to run the command prompt in a directory with scrapy.cfg file
